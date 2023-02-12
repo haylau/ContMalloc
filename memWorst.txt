@@ -1,0 +1,11 @@
+A  A  10  W
+A  X  10  W
+A  B  10  W
+A  X  20  W
+A  C   5  W
+A  X  15  W
+A  D   5  W
+S
+F  X
+S
+E
