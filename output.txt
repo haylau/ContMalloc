@@ -1,0 +1,89 @@
+ -- First Fit -- 
+mem>R tests/memFirst.txt 
+mem>A A 10 F 
+mem>A X 10 F 
+mem>A B 10 F 
+mem>A X 20 F 
+mem>A C 5 F 
+mem>A X 15 F 
+mem>A D 5 F 
+mem>S 
+AAAAAAAAAAXXXXXXXXXXBBBBBBBBBBXXXXXXXXXXXXXXXXXXXXCCCCCXXXXXXXXXXXXXXXDDDDD.....
+mem>F X 
+mem>S 
+AAAAAAAAAA..........BBBBBBBBBB....................CCCCC...............DDDDD.....
+mem>C 
+mem>S 
+AAAAAAAAAABBBBBBBBBBCCCCCDDDDD..................................................
+mem>E 
+
+ -- Best Fit -- 
+mem>R tests/memBest.txt 
+mem>A A 10 F 
+mem>A X 10 F 
+mem>A B 10 F 
+mem>A X 20 F 
+mem>A C 5 F 
+mem>A X 15 F 
+mem>A D 5 F 
+mem>F X 
+mem>S 
+AAAAAAAAAA..........BBBBBBBBBB....................CCCCC...............DDDDD.....
+mem>A E 4 B 
+mem>A E 4 B 
+mem>A F 10 B 
+mem>S 
+AAAAAAAAAAEEEE......BBBBBBBBBB....................CCCCCFFFFFFFFFF.....DDDDDEEEE.
+mem>C 
+mem>S 
+AAAAAAAAAAEEEEBBBBBBBBBBCCCCCFFFFFFFFFFDDDDDEEEE................................
+mem>E 
+
+ -- Worst Fit -- 
+mem>R tests/memWorst.txt 
+mem>A A 10 F 
+mem>A X 10 F 
+mem>A B 10 F 
+mem>A X 20 F 
+mem>A C 5 F 
+mem>A X 15 F 
+mem>A D 5 F 
+mem>S 
+AAAAAAAAAAXXXXXXXXXXBBBBBBBBBBXXXXXXXXXXXXXXXXXXXXCCCCCXXXXXXXXXXXXXXXDDDDD.....
+mem>F X 
+mem>S 
+AAAAAAAAAA..........BBBBBBBBBB....................CCCCC...............DDDDD.....
+mem>A E 4 W 
+mem>A E 4 W 
+mem>A F 10 W 
+mem>S 
+AAAAAAAAAA..........BBBBBBBBBBEEEEEEEE............CCCCCFFFFFFFFFF.....DDDDD.....
+mem>C 
+mem>S 
+AAAAAAAAAABBBBBBBBBBEEEEEEEECCCCCFFFFFFFFFFDDDDD................................
+mem>E 
+
+ -- Full Edge Case -- 
+mem>R tests/memFull.txt 
+mem>A A 70 F 
+mem>A X 10 B 
+mem>F A  
+mem>A B 10 F 
+mem>A X 20 F 
+mem>A C 5 F 
+mem>A X 15 F 
+mem>A D 5 F 
+mem>S 
+BBBBBBBBBBXXXXXXXXXXXXXXXXXXXXCCCCCXXXXXXXXXXXXXXXDDDDD...............XXXXXXXXXX
+mem>F X 
+mem>S 
+BBBBBBBBBB....................CCCCC...............DDDDD.........................
+mem>A E 4 B 
+mem>A E 4 B 
+mem>A F 10 B 
+mem>S 
+BBBBBBBBBBFFFFFFFFFF..........CCCCCEEEEEEEE.......DDDDD.........................
+mem>C 
+mem>S 
+BBBBBBBBBBFFFFFFFFFFCCCCCEEEEEEEEDDDDD..........................................
+mem>E 
