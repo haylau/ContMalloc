@@ -38,6 +38,13 @@ void falloc(char* memory, char name, int size) {
             hole = false;
         }
     }
+    // end of memory case 
+    if ((MEMSIZE - ptr + 1) >= size)
+    {
+        for (int j = 0; j < size; ++j) {
+            memory[j + ptr] = name;
+        }
+    }
 }
 void balloc(char* memory, char name, int size) {
     int ptr = 0;
@@ -50,15 +57,21 @@ void balloc(char* memory, char name, int size) {
             hole = true;
             ptr = i;
         }
-        else if (hole && (memory[i] != EMPTY || i == (MEMSIZE - 1))) {
+        else if (hole && (memory[i] != EMPTY || i == (MEMSIZE))) {
             // found end of hole before alloc
             hole = false;
-            if ((i - ptr) > size && (i - ptr) < best_size)
+            if ((i - ptr) >= size && (i - ptr) < best_size)
             {
                 best_idx = ptr;
                 best_size = i - ptr;
             }
         }
+    }
+    // end of memory case 
+    if ((MEMSIZE - ptr) >= size && (MEMSIZE - ptr) < best_size)
+    {
+        best_idx = ptr;
+        best_size = MEMSIZE - ptr;
     }
     if (best_idx == -1) {
         printf("Out of memory exception, tried to alloc %d\n", size);
@@ -69,7 +82,39 @@ void balloc(char* memory, char name, int size) {
     }
 }
 void walloc(char* memory, char name, int size) {
-
+    int ptr = 0;
+    int best_idx = -1;
+    int best_size = -1;
+    bool hole = false;
+    for (int i = 0; i < MEMSIZE; ++i) {
+        if (!hole && memory[i] == EMPTY) {
+            // found beginning of hole
+            hole = true;
+            ptr = i;
+        }
+        else if (hole && (memory[i] != EMPTY || i == (MEMSIZE))) {
+            // found end of hole before alloc
+            hole = false;
+            if ((i - ptr) >= size && (i - ptr) > best_size)
+            {
+                best_idx = ptr;
+                best_size = i - ptr;
+            }
+        }
+    }
+    // end of memory case 
+    if ((MEMSIZE - ptr) >= size && (MEMSIZE - ptr) > best_size)
+    {
+        best_idx = ptr;
+        best_size = MEMSIZE - ptr;
+    }
+    if (best_idx == -1) {
+        printf("Out of memory exception, tried to alloc %d\n", size);
+        return;
+    }
+    for (int j = 0; j < size; ++j) {
+        memory[j + best_idx] = name;
+    }
 }
 
 void cont_free(char* memory, char name) {
@@ -78,8 +123,17 @@ void cont_free(char* memory, char name) {
     }
 }
 
-void compact() {
-
+void compact(char* memory) {
+    int left = 0;
+    for (int i = 0; i < MEMSIZE; ++i) {
+        if (memory[i] != EMPTY) {
+            if (memory[left] == EMPTY) {
+                memory[left] = memory[i];
+                memory[i] = EMPTY;
+            }
+            ++left;
+        }
+    }
 }
 
 void readScript(char*** commandBuffer, int* bufSize, char* filename) {
@@ -92,8 +146,10 @@ void readScript(char*** commandBuffer, int* bufSize, char* filename) {
     // Read lines from the file and print them
     char line[BUFSIZE];
     while (fgets(line, BUFSIZE, file) != NULL) {
-        char* input = strdup(&line);
-        parseLines(commandBuffer, bufSize, input);
+        char* temp = line;
+        char* input = strdup(temp);
+        parseLine(commandBuffer, bufSize, input);
+        free(input);
     }
 
     // Close the file
@@ -107,10 +163,10 @@ void show(char* memory) {
     printf("\n");
 }
 
-void parseLines(char*** commandBuffer, int* bufSize, char* input) {
+void parseLine(char*** commandBuffer, int* bufSize, char* input) {
     // tokenize user cmd
     const char delim[2] = " ";
-    commandBuffer[*bufSize] = (char**)malloc(BUFSIZE * sizeof(char*));
+    commandBuffer[*bufSize] = (char**)calloc(BUFSIZE, sizeof(char*));
     int j = 0;
     char* token = strtok(input, delim);
 
@@ -120,7 +176,7 @@ void parseLines(char*** commandBuffer, int* bufSize, char* input) {
         if (strcmp(token, delim) != 0) {
             int token_length = strcspn(token, "\n");
             token[token_length] = '\0';
-            commandBuffer[*bufSize][j] = token;
+            commandBuffer[*bufSize][j] = strdup(token);
             ++j;
         }
         // grab token
@@ -129,7 +185,21 @@ void parseLines(char*** commandBuffer, int* bufSize, char* input) {
     ++(*(bufSize));
 }
 
-int main() {
+void emptyBuffer(char*** commandBuffer) {
+    int i = 0;
+    while (commandBuffer[i] != NULL) {
+        int j = 0;
+        while(commandBuffer[i][j] != NULL) {
+            free(commandBuffer[i][j]);
+            ++j;
+        }
+        free(commandBuffer[i]);
+        ++i;
+    }
+    free(commandBuffer);
+}
+
+int main(int argc, char* argv[]) {
 
     bool running = true;
     char*** commandBuffer = (char***)calloc(MAXCMDS, sizeof(char**));
@@ -141,13 +211,21 @@ int main() {
         memory[i] = EMPTY;
     }
 
+    // compiler arg may be passed 
+    if (argc == 3 && argv[1][0] == READ) {
+        commandBuffer[0] = (char**)calloc(BUFSIZE, sizeof(char*));
+        commandBuffer[0][0] = strdup(argv[1]);
+        commandBuffer[0][1] = strdup(argv[2]);
+        ++bufSize;
+    }
+
     while (running) {
         if (commandBuffer[bufIdx] == NULL) {
             // no commands in buffer; pull from stdin
             printf("mem>");
             if (bufIdx != 0) {
                 // reset buffer
-                free(commandBuffer);
+                emptyBuffer(commandBuffer);
                 commandBuffer = (char***)malloc(MAXCMDS * sizeof(char**));
                 bufIdx = 0;
                 bufSize = 0;
@@ -160,7 +238,7 @@ int main() {
             if (lineSize > 0) {
                 (input)[lineSize - 1] = '\0';
             }
-            parseLines(commandBuffer, &bufSize, input);
+            parseLine(commandBuffer, &bufSize, input);
         }
         else {
             printf("mem>");
@@ -203,10 +281,12 @@ int main() {
             break;
         }
         case COMPACT: {
+            compact(memory);
             break;
         }
         case EXIT: {
-            free(commandBuffer);
+            emptyBuffer(commandBuffer);
+            free(memory);
             running = false;
             break;
         }
@@ -215,6 +295,5 @@ int main() {
         }
         }
         ++bufIdx;
-        free(cmd);
     }
 }

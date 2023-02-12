@@ -1,2 +1,10 @@
+rm memory.o
 gcc -Wall -Wextra -g3 memory.c -o memory.o
-./memory.o
+echo -e " -- First Fit -- "
+./memory.o R memFirst.txt
+echo -e "\n -- Best Fit -- "
+./memory.o R memBest.txt
+echo -e "\n -- Worst Fit -- "
+./memory.o R memWorst.txt
+echo -e "\n -- Full Edge Case -- "
+./memory.o R memFull.txt

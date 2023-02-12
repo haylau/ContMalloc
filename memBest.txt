@@ -5,7 +5,12 @@ A  X  20  F
 A  C   5  F
 A  X  15  F
 A  D   5  F
-S
 F  X
+S
+A  E   4  B
+A  E   4  B
+A  F  10  B
+S
+C
 S
 E

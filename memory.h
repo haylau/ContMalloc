@@ -27,8 +27,9 @@ void falloc(char* memory, char name, int size);
 void balloc(char* memory, char name, int size);
 void walloc(char* memory, char name, int size);
 void cont_free(char* memory, char name);
-void compact();
+void compact(char* memory);
 void readScript(char*** commandBuffer, int* bufSize, char* filename);
 void show(char* memory);
 
-void parseLines(char*** commandBuffer, int* bufSize, char* input);
+void parseLine(char*** commandBuffer, int* bufSize, char* input);
+void emptyBuffer(char*** commandBuffer);
